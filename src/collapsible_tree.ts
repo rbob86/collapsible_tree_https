@@ -2,23 +2,14 @@
 declare var looker: Looker
 
 import * as d3 from 'd3'
-import { handleErrors } from '../utils'
+import { handleErrors } from './utils'
 
-import {
-  Row,
-  Looker,
-  Link,
-  Cell,
-  LookerChartUtils,
-  VisualizationDefinition
-} from '../types'
-import { keys, values } from 'd3'
+import { Row, Looker, Link, Cell, LookerChartUtils, VisualizationDefinition } from './types'
 declare var LookerCharts: LookerChartUtils
 
 interface CollapsibleTreeVisualization extends VisualizationDefinition {
   svg?: any
 }
-
 
 function descend(obj: any, taxonomy: any[], depth: number = 0) {
   const arr: any[] = []
@@ -29,7 +20,7 @@ function descend(obj: any, taxonomy: any[], depth: number = 0) {
     const child: any = {
       name: k,
       depth,
-      children: descend(obj[k], taxonomy, depth + 1)
+      children: descend(obj[k], taxonomy, depth + 1),
     }
     if ('__data' in obj[k]) {
       child.data = obj[k].__data
@@ -39,7 +30,7 @@ function descend(obj: any, taxonomy: any[], depth: number = 0) {
   return arr
 }
 
-function burrow(table: any, taxonomy: any[], linkMap: Map<string, Cell|Link[]|undefined> ) {
+function burrow(table: any, taxonomy: any[], linkMap: Map<string, Cell | Link[] | undefined>) {
   // create nested object
   const obj: any = {}
 
@@ -60,7 +51,7 @@ function burrow(table: any, taxonomy: any[], linkMap: Map<string, Cell|Link[]|un
     name: 'root',
     children: descend(obj, taxonomy, 1),
     depth: 0,
-    links: linkMap
+    links: linkMap,
   }
 }
 
@@ -72,14 +63,14 @@ const vis: CollapsibleTreeVisualization = {
       label: 'Node Color With Children',
       default: '#36c1b3',
       type: 'string',
-      display: 'color'
+      display: 'color',
     },
     color_empty: {
       label: 'Empty Node Color',
       default: '#fff',
       type: 'string',
-      display: 'color'
-    }
+      display: 'color',
+    },
   },
 
   // Set up the initial state of the visualization
@@ -89,16 +80,22 @@ const vis: CollapsibleTreeVisualization = {
 
   // Render in response to the data or settings changing
   update(data, element, config, queryResponse) {
-    if (!handleErrors(this, queryResponse, {
-      min_pivots: 0, max_pivots: 0,
-      min_dimensions: 2, max_dimensions: undefined,
-      min_measures: 0, max_measures: undefined
-    })) return
+    if (
+      !handleErrors(this, queryResponse, {
+        min_pivots: 0,
+        max_pivots: 0,
+        min_dimensions: 2,
+        max_dimensions: undefined,
+        min_measures: 0,
+        max_measures: undefined,
+      })
+    )
+      return
 
     let i = 0
     const nodeColors = {
       children: (config && config.color_with_children) || this.options.color_with_children.default,
-      empty: (config && config.color_empty) || this.options.color_empty.default
+      empty: (config && config.color_empty) || this.options.color_empty.default,
     }
     const textSize = 10
     const nodeRadius = 4
@@ -109,9 +106,7 @@ const vis: CollapsibleTreeVisualization = {
     const linkMap: Map<string, Link[]> = new Map()
     const nested = burrow(data, queryResponse.fields.dimension_like, linkMap)
 
-
-    const svg = this.svg!
-      .html('')
+    const svg = this.svg!.html('')
       .attr('width', width + margin.right + margin.left)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
@@ -177,32 +172,23 @@ const vis: CollapsibleTreeVisualization = {
       // ****************** Nodes section ***************************
 
       // Update the nodes...
-      const node = (
-        svg
-          .selectAll('g.node')
-          .data(nodes, (d: any) => d.id || (d.id = ++i))
-      )
+      const node = svg.selectAll('g.node').data(nodes, (d: any) => d.id || (d.id = ++i))
 
       // Enter any new modes at the parent's previous position.
-      const nodeEnter = (
-        node
-          .enter()
-          .append('g')
-          .attr('class', 'node')
-          .attr('transform', (d: any) => {
-            return 'translate(' + source.y0 + ',' + source.x0 + ')'
-          })
-          
-      )
+      const nodeEnter = node
+        .enter()
+        .append('g')
+        .attr('class', 'node')
+        .attr('transform', (d: any) => {
+          return 'translate(' + source.y0 + ',' + source.x0 + ')'
+        })
 
       // Add Circle for the nodes
-      nodeEnter.append('circle')
-        .attr('class', 'node')
-        .attr('r', 1e-6)
-        .on('click', click)
+      nodeEnter.append('circle').attr('class', 'node').attr('r', 1e-6).on('click', click)
 
       // Add labels for the nodes
-      nodeEnter.append('text')
+      nodeEnter
+        .append('text')
         .attr('dy', '.35em')
         .attr('x', (d: any) => {
           return d.children || d._children ? -textSize : textSize
@@ -213,34 +199,40 @@ const vis: CollapsibleTreeVisualization = {
         .style('cursor', 'pointer')
         .style('font-family', "'Open Sans', Helvetica, sans-serif")
         .style('font-size', textSize + 'px')
-        .text((d: any) => { return d.data.name })
-        .on('click', (d: any) => { 
-         LookerCharts.Utils.openDrillMenu({
+        .text((d: any) => {
+          return d.data.name
+        })
+        .on('click', (d: any) => {
+          LookerCharts.Utils.openDrillMenu({
             links: linkMap.get(d.data.name),
-            event: event
-          });
+            event: event,
+          })
         })
 
       // UPDATE
       const nodeUpdate = nodeEnter.merge(node)
 
       // Transition to the proper position for the node
-      nodeUpdate.transition()
+      nodeUpdate
+        .transition()
         .duration(duration)
         .attr('transform', (d: any) => {
           return 'translate(' + d.y + ',' + d.x + ')'
         })
 
       // Update the node attributes and style
-      nodeUpdate.select('circle.node')
+      nodeUpdate
+        .select('circle.node')
         .attr('r', nodeRadius)
-        .style('fill', (d: any) => d._children ? nodeColors.children : nodeColors.empty)
+        .style('fill', (d: any) => (d._children ? nodeColors.children : nodeColors.empty))
         .style('stroke', nodeColors.children)
         .style('stroke-width', 1.5)
         .attr('cursor', 'pointer')
 
       // Remove any exiting nodes
-      const nodeExit = node.exit().transition()
+      const nodeExit = node
+        .exit()
+        .transition()
         .duration(duration)
         .attr('transform', (d: any) => {
           return 'translate(' + source.y + ',' + source.x + ')'
@@ -248,36 +240,28 @@ const vis: CollapsibleTreeVisualization = {
         .remove()
 
       // On exit reduce the node circles size to 0
-      nodeExit.select('circle')
-        .attr('r', 1e-6)
+      nodeExit.select('circle').attr('r', 1e-6)
 
       // On exit reduce the opacity of text labels
-      nodeExit.select('text')
-        .style('fill-opacity', 1e-6)
+      nodeExit.select('text').style('fill-opacity', 1e-6)
 
       // ****************** links section ***************************
 
       // Update the links...
-      const link = (
-        svg
-          .selectAll('path.link')
-          .data(links, (d: any) => d.id)
-      )
+      const link = svg.selectAll('path.link').data(links, (d: any) => d.id)
 
       // Enter any new links at the parent's previous position.
-      const linkEnter = (
-        link
-          .enter()
-          .insert('path', 'g')
-          .attr('class', 'link')
-          .style('fill', 'none')
-          .style('stroke', '#ddd')
-          .style('stroke-width', 1.5)
-          .attr('d', (d: any) => {
-            const o = { x: source.x0, y: source.y0 }
-            return diagonal(o, o)
-          })
-      )
+      const linkEnter = link
+        .enter()
+        .insert('path', 'g')
+        .attr('class', 'link')
+        .style('fill', 'none')
+        .style('stroke', '#ddd')
+        .style('stroke-width', 1.5)
+        .attr('d', (d: any) => {
+          const o = { x: source.x0, y: source.y0 }
+          return diagonal(o, o)
+        })
 
       // UPDATE
       const linkUpdate = linkEnter.merge(link)
@@ -304,7 +288,6 @@ const vis: CollapsibleTreeVisualization = {
         d.x0 = d.x
         d.y0 = d.y
       })
-
     }
 
     // Collapse after the second level
@@ -312,8 +295,7 @@ const vis: CollapsibleTreeVisualization = {
 
     // Update the root node
     update(rootNode)
-
-  }
+  },
 }
 
 looker.plugins.visualizations.add(vis)

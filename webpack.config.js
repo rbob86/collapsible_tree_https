@@ -1,36 +1,37 @@
 var path = require('path')
 
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
 var webpackConfig = {
-  mode: 'production',
+  mode: 'development',
   entry: {
-    collapsible_tree: './src/collapsible_tree/collapsible_tree.ts',
+    collapsible_tree: './src/collapsible_tree.ts',
   },
   output: {
-    filename: "[name].js",
-    path: path.join(__dirname),
-    library: "[name]",
-    libraryTarget: "umd"
+    filename: '[name].js',
+    path: path.join(__dirname, 'dist'),
+  },
+  devServer: {
+    https: true,
+    compress: true,
+    port: 9000,
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    },
+    devMiddleware: {
+      writeToDisk: true,
+    },
   },
   resolve: {
-    extensions: [".ts", ".js"]
+    extensions: ['.ts', '.js'],
   },
-  plugins: [
-    new UglifyJSPlugin()
-  ],
   module: {
     rules: [
-      { test: /\.js$/, loader: "babel-loader" },
-      { test: /\.ts$/, loader: "ts-loader" },
-      { test: /\.css$/, loader: [ 'to-string-loader', 'css-loader' ] }
-    ]
+      { test: /\.js$/, loader: 'babel-loader' },
+      { test: /\.ts$/, loader: 'ts-loader' },
+    ],
   },
-  performance: {
-    hints: false,
-    maxEntrypointSize: 512000,
-    maxAssetSize: 512000
-  }
+  plugins: [new UglifyJSPlugin()],
 }
 
 module.exports = webpackConfig
