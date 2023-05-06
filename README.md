@@ -1,5 +1,4 @@
-#  Collapsible Tree
-
+# Collapsible Tree
 
 This diagram displays a [treemap](https://en.wikipedia.org/wiki/Tree_structure), showing a hierarchy of a series of dimensions.
 
@@ -18,32 +17,34 @@ The collapsible tree map is best utilized for cases where the user wants to map 
 All subnodes will be collapsed by default and can be expanded by clicking.
 
 ### What if I find an error? Suggestions for improvements?
+
 Great! Marketplace content -- including visualizations -- were designed for continuous improvement through the help of the entire Looker community and we'd love your input. To report an error or improvement recommendation, please get in touch at help.looker.com to submit a request. Please be as detailed as possible in your explanation and we'll address it as quick as we can.
 
-
 ### Interested in extending the visualization for your own use case?
+
 #### Quickstart Dev Instructions
+
 1.  **Install Dependecies.**
 
     Using yarn, install all dependencies
+
     ```
     yarn
     ```
-2. **Make changes to the source code**
 
-3.  **Compile your code**
+2.  **Run https dev server**
 
-    You need to compile your react code, let's run:
-    ```
-    yarn build
-    ```
-    Recommended: Webpack can detect changes and build automatically
-     ```
-    yarn watch
-    ```
-    Your compiled code can be found in this repo.
+    To run a local server to serve your compiled .js code:
 
-**`collapsible_tree.js`**: This visualization's minified distribution file. 
+    ```
+    yarn serve
+    ```
+
+3.  **Make changes to your code**
+
+    Webpack dev server will automatically detect changes and recompile js into the /dist folder
+
+**`collapsible_tree.js`**: This visualization's minified distribution file.
 
 **`LICENSE`**: Looker's Marketplace content License file.
 
@@ -60,4 +61,3 @@ Great! Marketplace content -- including visualizations -- were designed for cont
 **`yarn.lock`**: [Yarn](https://yarnpkg.com/) is a package manager alternative to npm. This file serves essentially the same purpose as `package-lock.json`, just for a different package management system.
 
 **`.tsconfig.json`**: A configuration file for the typescript -> javascript compiler.
-
